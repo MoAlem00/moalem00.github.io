@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Projects</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <nav>
+  <a href="index.html">Home</a>
+  <a href="projects.html">Projects</a>
+  <a href="contact.html">Contact</a>
+</nav>
+<h1>My Projects</h1>
+<h2>Apocalypse 2D</h2>
+<p>Top down 2D survival game developed in Unity.</p>
+<div id="game-cover">
+  <img src="Assets/Images/ApocalypseBackground.png" alt="Game Preview">
+  <button onclick="startGame()">▶ Play Game</button>
+</div>
+<iframe id="game-frame" src="game/index.html" width="1200" height="800"></iframe>
+<script>
+    function startGame() {
+      document.getElementById('game-frame').style.display ='block';
+      document.getElementById('game-cover').style.display ='none';
+    }
+    </script>
+  </body>
+
+</html>
