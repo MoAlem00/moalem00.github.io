@@ -60,11 +60,16 @@
   const gunImg = new Image();
   gunImg.src = 'sprites/gun.png';
 
+  const gunBulletImg = new Image();
+  gunBulletImg.src = 'sprites/gun-bullet.png';
+
   let killCount = parseInt(localStorage.getItem('killCount')) || 0;
 
   let ammo = 6;
   let maxAmmo = 6;
   let reloading = false;
+
+  let bullets = [];
 
   let keys = {};
 
@@ -82,7 +87,9 @@
   speed: 1.5,
   frame: 0,
   frameTimer: 0,
-  isWalking: false
+  isWalking: false,
+  health:100,
+  maxHealth:100
   };
 
   let zombies = [
@@ -161,6 +168,98 @@
       }
     }
   }
+
+  function updateZombie(zombie) {
+  zombie.x -= zombie.speed;
+  zombie.frameTimer++;
+  if (zombie.frameTimer > 12) {
+    zombie.frameTimer = 0;
+    zombie.frame++;
+    if (!zombie.isDead && zombie.x < -100) {
+      zombie.x = canvas.width;
+      zombie.frame = 0;
+    }
+    if (!zombie.isDead) {
+      // walking
+      const dx = zombie.x - player.x;
+      const dy = zombie.y - player.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if(distance < 40){
+        player.health -= 0.5; // damage player when close
+        if(player.health <= 0) {
+          player.health = 0;
+          // Optionally, you could add a "game over" state here
+        }
+      }
+      zombie.x -= zombie.speed;
+      const maxFrames = zombie.isDead ? 
+        (zombie.type === 'big' ? 8 : 7) :
+        (zombie.type === 'big' ? 8 : 6);
+
+      if (zombie.frame >= maxFrames) {
+        zombie.frame = 0;
+      }
+    } else {
+      // dying — don't loop, stop at last frame
+      zombie.speed = 0; // stop moving when dead
+      if (zombie.frame >= 7) {
+      zombie.frame = 6;
+      if (!zombie.redirecting) {
+        zombie.redirecting = true;
+        setTimeout(function() {
+        window.location.href = zombie.url;
+        }, 300); // wait 300ms then redirect
+      }
+      }
+      }
+    }
+  }
+
+  function updateBullets(){
+    for (let i = 0; i < bullets.length; i++) {
+      let bullet = bullets[i];
+      if (bullet.active) {
+        bullet.x += bullet.speedX;
+        bullet.y += bullet.speedY;
+        for (let j = 0; j < zombies.length; j++) {
+          let zombie = zombies[j];
+          if (!zombie.isDead) {
+            const frameWidth = zombie.type === 'big' ? 16 : 10;
+            const frameHeight = zombie.type === 'big' ? 24 : 15;
+
+            if (bullet.x > zombie.x &&
+              bullet.x < zombie.x + frameWidth * 4 &&
+              bullet.y > zombie.y &&
+              bullet.y < zombie.y + frameHeight * 4) {
+            // bullet hit zombie!
+            bullet.active = false;
+            zombie.isDead = true;
+            zombie.frame = 0;
+            zombie.speed = 0;
+            killCount++;
+            localStorage.setItem('killCount', killCount);
+            }
+          }
+        }
+        // Deactivate if off screen
+        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+          bullet.active = false;
+        }
+      }
+    }
+    bullets = bullets.filter(b => b.active);
+  }
+
+  function drawBullets(){
+    for (let i = 0; i < bullets.length; i++) {
+    let bullet = bullets[i];
+    ctx.beginPath();
+    ctx.arc(bullet.x, bullet.y, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = "Gold";
+    ctx.fill();
+  }
+  }
+
   function drawPlayer() {
     const img = player.isWalking ? playerWalkImg : playerIdleImg;
     const frameWidth = player.isWalking ? 10 : 10;
@@ -207,7 +306,18 @@
     }
     ctx.restore();
   }
+
   function drawHUD(){
+    const barWidth = 150;
+    const barHeight = 12;
+    const healthPercent = player.health / player.maxHealth;
+    // background
+    ctx.fillStyle = '#500000';
+    ctx.fillRect(20, 150, barWidth, barHeight);
+    // foreground
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(20, 150, barWidth * healthPercent, barHeight);
+
     ctx.textAlign = 'left';
     ctx.font = '20px monospace';
     ctx.fillStyle = 'white';
@@ -281,46 +391,21 @@
 }
 }
 
-  function updateZombie(zombie) {
-  zombie.x -= zombie.speed;
-  zombie.frameTimer++;
-  if (zombie.frameTimer > 12) {
-    zombie.frameTimer = 0;
-    zombie.frame++;
-    if (!zombie.isDead && zombie.x < -100) {
-      zombie.x = canvas.width;
-      zombie.frame = 0;
-    }
-    if (!zombie.isDead) {
-      // walking
-      zombie.x -= zombie.speed;
-      const maxFrames = zombie.isDead ? 
-        (zombie.type === 'big' ? 8 : 7) :
-        (zombie.type === 'big' ? 8 : 6);
-
-      if (zombie.frame >= maxFrames) {
-        zombie.frame = 0;
-}
-    } else {
-      // dying — don't loop, stop at last frame
-      zombie.speed = 0; // stop moving when dead
-      if (zombie.frame >= 7) {
-  zombie.frame = 6;
-  if (!zombie.redirecting) {
-    zombie.redirecting = true;
-    setTimeout(function() {
-      window.location.href = zombie.url;
-    }, 300); // wait 300ms then redirect
-  }
-}
-  }
-    
-  }
-}
 
 window.addEventListener('click', function() {
-  if (ammo <= 0 || reloading) return; // can't shoot if no ammo
 
+  if (ammo <= 0 || reloading) return; // can't shoot if no ammo
+  const centerX = player.x + 15;
+  const centerY = player.y + 35;
+  const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+  const bulletSpeed = 5;
+  bullets.push({
+    x: centerX,
+    y: centerY,
+    speedX: Math.cos(angle) * bulletSpeed,
+    speedY: Math.sin(angle) * bulletSpeed,
+    active: true
+  });
   ammo--; // use one bullet
 
   if (ammo <= 0) {
@@ -329,20 +414,6 @@ window.addEventListener('click', function() {
       ammo = maxAmmo;
       reloading = false;
     }, 2000); // 2 second reload
-  }
-
-  for (let i = 0; i < zombies.length; i++) {
-    let zombie = zombies[i];
-    if (!zombie.isDead &&
-        mouseX > zombie.x && 
-        mouseX < zombie.x + 11 * 4 &&
-        mouseY > zombie.y && 
-        mouseY < zombie.y + 15 * 4) {
-      zombie.isDead = true;
-      zombie.frame = 0;
-      killCount++;
-      localStorage.setItem('killCount', killCount);
-    }
   }
 });
 
@@ -357,6 +428,8 @@ function gameLoop() {
     drawLabel(zombie);
   }
   updatePlayer();
+  updateBullets();
+  drawBullets();
   drawPlayer();
   drawHUD();
   drawCrosshair();
