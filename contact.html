@@ -2,31 +2,182 @@
 <html>
   <head>
     <title>Contact</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #7c7c7c;
+        /* cursor: none; */
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+      @font-face {
+        font-family: 'Jersey10';
+        src: url('fonts/Jersey10-Regular.ttf');
+      }
+    </style>
   </head>
   <body>
-    <nav>
-  <a href="index.html">Home</a>
-  <a href="projects.html">Projects</a>
-  <a href="contact.html">Contact</a>
-</nav>
-<h1>Contact Me</h1>
-<p>Welcome to my contact page!</p>
-<p>Feel free to reach out!</p>
-<p><a href="mailto:mohammad.alem.dev@gmail.com" target="_blank">Gmail</a></p>
-<p><a href = "https://github.com/MoAlem00" target="_blank"> Github</a></p>
-<p><a href = "https://www.linkedin.com/in/mohamadalim/" target="_blank"> LinkedIn</a></p>
-<p><a href = "https://mohammadalem.itch.io/" target="_blank"> Itch.io</a></p>
-<p><a href = "https://www.youtube.com/@MohammadAlem001" target="_blank"> YouTube</a></p>
+    <canvas id="contactCanvas"></canvas>
+    <script>
+      const canvas = document.getElementById('contactCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.imageSmoothingEnabled = false;
+
+      const github = new Image();
+      github.src = 'sprites/github-shop.png';
+
+      const gmail = new Image();
+      gmail.src = 'sprites/gmail-shop.png';
+
+      const youtube = new Image();
+      youtube.src = 'sprites/youtube-shop.png';
+
+      const linkedin = new Image();
+      linkedin.src = 'sprites/linkedin-shop.png';
+
+      const itchio = new Image();
+      itchio.src = 'sprites/itchio-shop.png';
+
+      const playerIdleImg = new Image();
+      playerIdleImg.src = 'sprites/player-idle.png';
+
+      const playerWalkImg = new Image();
+      playerWalkImg.src = 'sprites/player-walk.png';
+
+      const gunImg = new Image();
+      gunImg.src = 'sprites/gun.png';
+
+
+      let mouseX = 0;
+      let mouseY = 0;
+      window.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+
+      let keys = {};
+
+      window.addEventListener('keydown', function(e) {
+      keys[e.key] = true;
+      });
+
+      window.addEventListener('keyup', function(e) {
+      keys[e.key] = false;
+      });
+
+      let player = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      speed: 1.5,
+      frame: 0,
+      frameTimer: 0,
+     isWalking: false,
+    };
+
+    function updatePlayer(){
+    player.isWalking = false;
+    if (keys['w'] || keys['ArrowUp']) {
+      player.y -= player.speed;
+      player.isWalking = true;
+    }
+    if (keys['s'] || keys['ArrowDown']) {
+      player.y += player.speed;
+      player.isWalking = true;
+    }
+    if (keys['a'] || keys['ArrowLeft']) {
+      player.x -= player.speed;
+      player.isWalking = true;
+    }
+    if (keys['d'] || keys['ArrowRight']) {
+      player.x += player.speed;
+      player.isWalking = true;
+    }
+    player.x = Math.max(0, Math.min(canvas.width - 60, player.x));
+    player.y = Math.max(250, Math.min(canvas.height - 300, player.y));
+    player.frameTimer++;
+    if (player.frameTimer > 16) {
+      player.frameTimer = 0;
+      player.frame++;
+      if (player.frame >= 6) {
+        player.frame = 0;
+      }
+    }
+    }
+
+    function drawPlayer() {
+    const img = player.isWalking ? playerWalkImg : playerIdleImg;
+    const frameWidth = player.isWalking ? 10 : 10;
+    const frameHeight = player.isWalking ? 17 : 16;
+    ctx.drawImage(
+      img,
+      player.frame * frameWidth,
+      0,
+      frameWidth,
+      frameHeight,
+      player.x,
+      player.y,
+      frameWidth * 4,
+      frameHeight * 4
+    );
+    // Draw gun on top
+    // calculate angle from player center to mouse
+    const centerX = player.x + 15; // horizontal center of player
+    const centerY = player.y + 35; // vertical center of player
+    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+    const facingLeft = mouseX < centerX;
+
+    // draw rotated gun
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(angle);
+    if(facingLeft) {
+      ctx.scale(1, -1); // flip vertically when facing left
+      ctx.drawImage(
+        gunImg,
+        -9,          // draw from rotation origin
+        -9,         // offset up slightly so gun is centered
+        16 * 3,
+        10 * 3
+      );
+    }else{ //face right
+      ctx.drawImage(
+        gunImg,
+        -8,          // draw from rotation origin
+        -8,         // offset up slightly so gun is centered
+        16 * 3,
+        10 * 3
+      );
+    }
+    ctx.restore();
+    }
+
+      function contactLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(github, 0, 0, 600, 327);
+        ctx.drawImage(gmail, 1400, 100, 600, 327);
+        ctx.drawImage(youtube, 700, 400, 600, 327);
+        ctx.drawImage(linkedin, 0, 700, 600, 327);
+        ctx.drawImage(itchio, 1500, 300, 600, 600);
+        drawPlayer();
+        updatePlayer();
+        requestAnimationFrame(contactLoop);
+      }
+
+      const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
+      myFont.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        contactLoop();
+      });
+    </script>
   </body>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-<div class="orb orb4"></div>
-<div class="orb orb5"></div>
-<div class="orb orb6"></div>
-<div class="orb orb7"></div>
-<div class="orb orb8"></div>
-<div class="orb orb9"></div>
-<div class="orb orb10"></div>
 </html>
