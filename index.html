@@ -30,6 +30,12 @@
   ctx.imageSmoothingEnabled = false;
 
   // 2. Load images
+  const backgroundImg = new Image();
+  backgroundImg.src = 'sprites/background.png';
+
+  const borderImg = new Image();
+  borderImg.src = 'sprites/border.png';
+
   const crosshairImg = new Image();
   crosshairImg.src = 'sprites/crosshair.png';
 
@@ -63,11 +69,17 @@
   const gunBulletImg = new Image();
   gunBulletImg.src = 'sprites/gun-bullet.png';
 
+  const muzzleFlashImg = new Image();
+  muzzleFlashImg.src = 'sprites/muzzle-flash.png';
+
   let killCount = parseInt(localStorage.getItem('killCount')) || 0;
 
   let ammo = 6;
   let maxAmmo = 6;
   let reloading = false;
+
+  let muzzleFlash = 0;
+  let muzzleFlashFrame = 0;
 
   let bullets = [];
 
@@ -118,8 +130,8 @@
     type: 'small'
   },
   {
-    x: canvas.width + 100,
-    y: canvas.height / 2 + 200,
+    x: canvas.width - 100,
+    y: canvas.height / 2 -200,
     speed: 0.5,
     frame: 0,
     frameTimer: 0,
@@ -158,7 +170,7 @@
       player.isWalking = true;
     }
     player.x = Math.max(0, Math.min(canvas.width - 60, player.x));
-    player.y = Math.max(0, Math.min(canvas.height - 68, player.y));
+    player.y = Math.max(250, Math.min(canvas.height - 300, player.y));
     player.frameTimer++;
     if (player.frameTimer > 16) {
       player.frameTimer = 0;
@@ -254,8 +266,8 @@
     for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     ctx.beginPath();
-    ctx.arc(bullet.x, bullet.y, 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = "Gold";
+    ctx.arc(bullet.x, bullet.y, 1.8, 0, Math.PI * 2);
+    ctx.fillStyle = "black";
     ctx.fill();
   }
   }
@@ -308,29 +320,31 @@
   }
 
   function drawHUD(){
-    const barWidth = 150;
-    const barHeight = 12;
+
+    ctx.drawImage(borderImg, 0,0, 124 * 3.5, 62 * 3.5);
+    const barWidth = 280;
+    const barHeight = 20;
     const healthPercent = player.health / player.maxHealth;
     // background
-    ctx.fillStyle = '#500000';
-    ctx.fillRect(20, 150, barWidth, barHeight);
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(40, 45, barWidth, barHeight);
     // foreground
-    ctx.fillStyle = '#00ff00';
-    ctx.fillRect(20, 150, barWidth * healthPercent, barHeight);
+    ctx.fillStyle = '#A80202';
+    ctx.fillRect(40, 45, barWidth * healthPercent, barHeight);
 
     ctx.textAlign = 'left';
-    ctx.font = '20px monospace';
+    ctx.font = 'bold 30px monospace';
     ctx.fillStyle = 'white';
-    ctx.fillText('KILLS: ' + killCount, 20, 40);
+    ctx.fillText('KILLS: ' + killCount, 40, 170);
     if (reloading) {
     ctx.fillStyle = 'red';
-    ctx.fillText('RELOADING...', 20, 130);}
+    ctx.fillText('RELOADING...', 160, 130);}
     for (let i = 0; i < maxAmmo; i++) {
     const img = i < ammo ? bulletImg : bulletEmptyImg;
     ctx.drawImage(
       img,
-      20 + i * 20,  // space them 20px apart
-      60,           // y position below kill counter
+      40 + i * 20,  // space them 20px apart
+      80,           // y position below kill counter
       7 * 2,        // width scaled up
       25 * 2        // height scaled up
     );
@@ -350,7 +364,7 @@
 
   function drawLabel(zombie) {
     ctx.fillStyle = 'white';
-    ctx.font = '16px monospace';
+    ctx.font = '20px monospace';
     ctx.textAlign = 'center';
     ctx.fillText(zombie.label, zombie.x + (11 * 4) / 2, zombie.y - 5);
   }
@@ -391,6 +405,33 @@
 }
 }
 
+function drawMuzzleFlash() {
+  if (muzzleFlash <= 0) return;
+
+  const centerX = player.x + 15;
+  const centerY = player.y + 35;
+  const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.drawImage(
+    muzzleFlashImg,
+    muzzleFlashFrame * 10, // 30px ÷ 3 frames = 10px each
+    0,
+    10,
+    7,
+    40,   // offset forward from gun tip
+    -3,   // center vertically
+    10,
+    7
+  );
+  ctx.restore();
+
+  muzzleFlash--;
+  if (muzzleFlash % 3 === 0) muzzleFlashFrame++;
+}
+
 
 window.addEventListener('click', function() {
 
@@ -406,6 +447,8 @@ window.addEventListener('click', function() {
     speedY: Math.sin(angle) * bulletSpeed,
     active: true
   });
+  muzzleFlash = 9; // 3 frames × 3 ticks each
+  muzzleFlashFrame = 0;
   ammo--; // use one bullet
 
   if (ammo <= 0) {
@@ -421,6 +464,7 @@ window.addEventListener('click', function() {
   // 5. Game loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
   for (let i = 0; i < zombies.length; i++) {
     let zombie = zombies[i];
     updateZombie(zombie);
@@ -432,6 +476,7 @@ function gameLoop() {
   drawBullets();
   drawPlayer();
   drawHUD();
+  drawMuzzleFlash();
   drawCrosshair();
   requestAnimationFrame(gameLoop);
 }
