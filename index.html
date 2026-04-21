@@ -17,6 +17,10 @@
         image-rendering: pixelated;
         image-rendering: crisp-edges;
       }
+      @font-face {
+        font-family: 'Jersey10';
+        src: url('fonts/Jersey10-Regular.ttf');
+      }
     </style>
   </head>
   <body>
@@ -31,7 +35,7 @@
 
   // 2. Load images
   const backgroundImg = new Image();
-  backgroundImg.src = 'sprites/background.png';
+  backgroundImg.src = 'sprites/background3.png';
 
   const borderImg = new Image();
   borderImg.src = 'sprites/border.png';
@@ -333,9 +337,9 @@
     ctx.fillRect(40, 45, barWidth * healthPercent, barHeight);
 
     ctx.textAlign = 'left';
-    ctx.font = 'bold 30px monospace';
+    ctx.font = '50px Jersey10';
     ctx.fillStyle = 'white';
-    ctx.fillText('KILLS: ' + killCount, 40, 170);
+    ctx.fillText('KILLS: ' + killCount, 40, 180);
     if (reloading) {
     ctx.fillStyle = 'red';
     ctx.fillText('RELOADING...', 160, 130);}
@@ -364,7 +368,7 @@
 
   function drawLabel(zombie) {
     ctx.fillStyle = 'white';
-    ctx.font = '20px monospace';
+    ctx.font = '35px Jersey10';
     ctx.textAlign = 'center';
     ctx.fillText(zombie.label, zombie.x + (11 * 4) / 2, zombie.y - 5);
   }
@@ -480,9 +484,12 @@ function gameLoop() {
   drawCrosshair();
   requestAnimationFrame(gameLoop);
 }
-
+const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
+myFont.load().then(function(loaded) {
+  document.fonts.add(loaded);
   // 6. Start
   gameLoop();
+});
 </script>
   </body>
 </html>
