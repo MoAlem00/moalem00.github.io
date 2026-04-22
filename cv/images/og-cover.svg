@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="ogbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d1633"/>
+      <stop offset="100%" stop-color="#0a0612"/>
+    </linearGradient>
+    <linearGradient id="ogaccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c77eff"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ff7ad9"/>
+    </linearGradient>
+    <radialGradient id="ogglow" cx="80%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#c77eff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#c77eff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="oggrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#c77eff" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#ogbg)"/>
+  <rect width="1200" height="630" fill="url(#oggrid)"/>
+  <rect width="1200" height="630" fill="url(#ogglow)"/>
+
+  <!-- corner pixel accents -->
+  <g fill="#c77eff">
+    <rect x="40" y="40" width="10" height="10"/>
+    <rect x="56" y="40" width="10" height="10"/>
+    <rect x="40" y="56" width="10" height="10"/>
+    <rect x="1150" y="580" width="10" height="10"/>
+    <rect x="1134" y="580" width="10" height="10"/>
+    <rect x="1150" y="564" width="10" height="10"/>
+  </g>
+
+  <!-- mark -->
+  <g transform="translate(80 200)">
+    <rect width="84" height="84" rx="18" fill="url(#ogaccent)"/>
+    <text x="42" y="60" text-anchor="middle"
+          font-family="'Bricolage Grotesque', system-ui, sans-serif"
+          font-weight="800" font-size="40" fill="#1a0c2c">MA</text>
+  </g>
+
+  <!-- text -->
+  <g font-family="'Bricolage Grotesque', system-ui, sans-serif" fill="#f1ecfa">
+    <text x="200" y="262" font-size="42" font-weight="500" fill="#a89cc4"
+          font-family="'JetBrains Mono', monospace" letter-spacing="2">// PORTFOLIO</text>
+    <text x="80" y="370" font-size="96" font-weight="800" letter-spacing="-3">Mohammad Alem</text>
+    <text x="80" y="440" font-size="46" font-weight="500" fill="#c77eff">Game Developer &middot; Unity &amp; C#</text>
+    <text x="80" y="500" font-size="26" font-weight="400" fill="#b1a5cf"
+          font-family="'Manrope', system-ui, sans-serif">
+      Turning ideas into playable experiences. Based in Jerusalem.
+    </text>
+  </g>
+
+  <!-- bottom tags -->
+  <g font-family="'JetBrains Mono', monospace" font-size="20" fill="#c77eff">
+    <text x="80" y="570">[ Unity ]</text>
+    <text x="200" y="570">[ C# ]</text>
+    <text x="280" y="570">[ 2D &amp; 3D ]</text>
+    <text x="430" y="570">[ Game Jams ]</text>
+  </g>
+</svg>
