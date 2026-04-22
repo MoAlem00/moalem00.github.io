@@ -270,7 +270,7 @@
        for (let i = 0; i < portals.length; i++) {
          let portal = portals[i];
          portal.frameTimer++;
-         if (portal.frameTimer > 8) {
+         if (portal.frameTimer > 16) {
            portal.frameTimer = 0;
            portal.frame++;
            if (portal.frame >= 5) portal.frame = 0;

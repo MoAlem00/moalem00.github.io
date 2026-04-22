@@ -192,7 +192,7 @@
            let portal = portals[i];
 
            portal.frameTimer++;
-           if (portal.frameTimer > 8) {
+           if (portal.frameTimer > 16) {
              portal.frameTimer = 0;
              portal.frame++;
              if (portal.frame >= 5) portal.frame = 0;
@@ -433,8 +433,25 @@
       }     
       }
 
-      projectsLoop();
+      let imagesLoaded = 0;
+      const totalImages = 6;
 
+      function onImageLoad() {
+        imagesLoaded++;
+        if (imagesLoaded >= totalImages) {
+          const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
+          myFont.load().then(function(loaded) {
+            document.fonts.add(loaded);
+            projectsLoop();
+      });
+      }
+      }
+      playerIdleImg.onload = onImageLoad;
+      playerWalkImg.onload = onImageLoad;
+      gunImg.onload = onImageLoad;
+      portalImg.onload = onImageLoad;
+      crosshairImg.onload = onImageLoad;
+      backgroundimg.onload = onImageLoad;
 
     </script>
   </body>
