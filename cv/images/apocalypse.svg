@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a1a3f"/>
+      <stop offset="50%" stop-color="#1d1232"/>
+      <stop offset="100%" stop-color="#0a0612"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff7d4"/>
+      <stop offset="60%" stop-color="#ffd97a" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ffd97a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bloodGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff3a3a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ff3a3a" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="ground" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#15101f"/>
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2a2240" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#sky)"/>
+
+  <!-- Moon -->
+  <circle cx="640" cy="110" r="120" fill="url(#moon)"/>
+  <circle cx="640" cy="110" r="46" fill="#fff4cc"/>
+  <circle cx="625" cy="100" r="6" fill="#e9d59f" opacity="0.5"/>
+  <circle cx="650" cy="118" r="4" fill="#e9d59f" opacity="0.5"/>
+
+  <!-- Distant ruined skyline -->
+  <g fill="#0a0612" opacity="0.85">
+    <polygon points="0,300 60,260 90,275 130,240 170,270 210,250 240,290 280,270 300,300"/>
+    <polygon points="280,300 330,250 360,280 400,235 440,270 470,255 510,290 540,275 580,300"/>
+    <polygon points="540,300 590,260 620,290 660,250 700,275 740,260 780,290 800,300"/>
+  </g>
+
+  <!-- Ground -->
+  <rect x="0" y="300" width="800" height="200" fill="url(#ground)"/>
+
+  <!-- Blood splatter glow -->
+  <circle cx="400" cy="380" r="220" fill="url(#bloodGlow)"/>
+
+  <!-- Player (top-down character) -->
+  <g transform="translate(400 380)">
+    <!-- shadow -->
+    <ellipse cx="0" cy="22" rx="22" ry="6" fill="#000" opacity="0.5"/>
+    <!-- body -->
+    <circle r="20" fill="#c77eff" stroke="#fff" stroke-width="2"/>
+    <!-- gun -->
+    <rect x="18" y="-4" width="22" height="8" fill="#1a1230" stroke="#c77eff" stroke-width="1.5"/>
+    <!-- aim line -->
+    <line x1="40" y1="0" x2="120" y2="-40" stroke="#ff3a3a" stroke-width="1.5" stroke-dasharray="4 4"/>
+  </g>
+
+  <!-- Zombies -->
+  <g>
+    <g transform="translate(180 360)">
+      <ellipse cx="0" cy="20" rx="18" ry="5" fill="#000" opacity="0.5"/>
+      <circle r="16" fill="#3d6b3d" stroke="#1a2e1a" stroke-width="2"/>
+      <circle cx="-5" cy="-3" r="2.5" fill="#ff3a3a"/>
+      <circle cx="5" cy="-3" r="2.5" fill="#ff3a3a"/>
+    </g>
+    <g transform="translate(620 420)">
+      <ellipse cx="0" cy="20" rx="18" ry="5" fill="#000" opacity="0.5"/>
+      <circle r="16" fill="#3d6b3d" stroke="#1a2e1a" stroke-width="2"/>
+      <circle cx="-5" cy="-3" r="2.5" fill="#ff3a3a"/>
+      <circle cx="5" cy="-3" r="2.5" fill="#ff3a3a"/>
+    </g>
+    <g transform="translate(120 440)">
+      <ellipse cx="0" cy="20" rx="18" ry="5" fill="#000" opacity="0.5"/>
+      <circle r="16" fill="#3d6b3d" stroke="#1a2e1a" stroke-width="2"/>
+      <circle cx="-5" cy="-3" r="2.5" fill="#ff3a3a"/>
+      <circle cx="5" cy="-3" r="2.5" fill="#ff3a3a"/>
+    </g>
+    <g transform="translate(700 360)">
+      <ellipse cx="0" cy="20" rx="18" ry="5" fill="#000" opacity="0.5"/>
+      <circle r="16" fill="#3d6b3d" stroke="#1a2e1a" stroke-width="2"/>
+      <circle cx="-5" cy="-3" r="2.5" fill="#ff3a3a"/>
+      <circle cx="5" cy="-3" r="2.5" fill="#ff3a3a"/>
+    </g>
+    <g transform="translate(540 460)">
+      <ellipse cx="0" cy="20" rx="18" ry="5" fill="#000" opacity="0.5"/>
+      <circle r="16" fill="#3d6b3d" stroke="#1a2e1a" stroke-width="2"/>
+      <circle cx="-5" cy="-3" r="2.5" fill="#ff3a3a"/>
+      <circle cx="5" cy="-3" r="2.5" fill="#ff3a3a"/>
+    </g>
+    <g transform="translate(280 470)">
+      <ellipse cx="0" cy="20" rx="18" ry="5" fill="#000" opacity="0.5"/>
+      <circle r="16" fill="#3d6b3d" stroke="#1a2e1a" stroke-width="2"/>
+      <circle cx="-5" cy="-3" r="2.5" fill="#ff3a3a"/>
+      <circle cx="5" cy="-3" r="2.5" fill="#ff3a3a"/>
+    </g>
+  </g>
+
+  <!-- HUD -->
+  <g font-family="'JetBrains Mono', monospace" font-size="14" fill="#c77eff">
+    <text x="22" y="36" font-weight="500">APOCALYPSE 2D</text>
+    <text x="22" y="56" font-size="11" fill="#a89cc4">WAVE 07 &middot; HP 84/100</text>
+  </g>
+  <g font-family="'Press Start 2P', monospace" font-size="9" fill="#ff3a3a">
+    <text x="778" y="36" text-anchor="end">SCORE 12,840</text>
+  </g>
+</svg>

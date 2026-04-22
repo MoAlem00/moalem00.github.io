@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="mbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a0e3f"/>
+      <stop offset="50%" stop-color="#15102a"/>
+      <stop offset="100%" stop-color="#0a0612"/>
+    </linearGradient>
+    <radialGradient id="chaosGlow" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#ff7ad9" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#c77eff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#c77eff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="maskGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c77eff"/>
+      <stop offset="100%" stop-color="#ff7ad9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#mbg)"/>
+
+  <!-- swirling chaos rings -->
+  <g fill="none" stroke-width="1" opacity="0.35">
+    <circle cx="400" cy="250" r="200" stroke="#c77eff" stroke-dasharray="2 8"/>
+    <circle cx="400" cy="250" r="150" stroke="#ff7ad9" stroke-dasharray="3 12"/>
+    <circle cx="400" cy="250" r="100" stroke="#8b5cf6" stroke-dasharray="1 6"/>
+  </g>
+
+  <!-- glow -->
+  <circle cx="400" cy="250" r="260" fill="url(#chaosGlow)"/>
+
+  <!-- floating chaotic shards -->
+  <g opacity="0.7">
+    <polygon points="120,80 160,90 140,130" fill="#c77eff" opacity="0.5"/>
+    <polygon points="660,90 700,110 680,150" fill="#ff7ad9" opacity="0.5"/>
+    <rect x="80" y="380" width="22" height="22" fill="#8b5cf6" opacity="0.6" transform="rotate(20 91 391)"/>
+    <rect x="700" y="380" width="22" height="22" fill="#c77eff" opacity="0.6" transform="rotate(-25 711 391)"/>
+    <polygon points="60,220 90,210 80,240" fill="#ff7ad9" opacity="0.4"/>
+    <polygon points="730,260 760,250 750,280" fill="#c77eff" opacity="0.4"/>
+    <circle cx="180" cy="430" r="6" fill="#ff7ad9"/>
+    <circle cx="620" cy="60"  r="5" fill="#c77eff"/>
+    <circle cx="730" cy="430" r="4" fill="#8b5cf6"/>
+  </g>
+
+  <!-- tragedy & comedy mask pair, slightly chaotic -->
+  <g transform="translate(400 260)">
+    <!-- back mask (comedy) -->
+    <g transform="translate(-90 -10) rotate(-12)">
+      <path d="M 0 -110
+               C 70 -110 100 -70 100 0
+               C 100 70 60 110 0 110
+               C -60 110 -100 70 -100 0
+               C -100 -70 -70 -110 0 -110 Z"
+            fill="#1a1230" stroke="url(#maskGrad)" stroke-width="3"/>
+      <!-- eyes (smiling) -->
+      <path d="M -42 -22 q 18 -22 36 0" stroke="#c77eff" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M  6  -22 q 18 -22 36 0" stroke="#c77eff" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- smile -->
+      <path d="M -40 30 Q 0 70 40 30" stroke="#ff7ad9" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <!-- front mask (tragedy) -->
+    <g transform="translate(60 0) rotate(10)">
+      <path d="M 0 -110
+               C 70 -110 100 -70 100 0
+               C 100 70 60 110 0 110
+               C -60 110 -100 70 -100 0
+               C -100 -70 -70 -110 0 -110 Z"
+            fill="#150d24" stroke="url(#maskGrad)" stroke-width="3"/>
+      <!-- eyes (sad) -->
+      <path d="M -42 -10 q 18 -18 36 0" stroke="#ff7ad9" stroke-width="4" fill="none" stroke-linecap="round" transform="rotate(180 -24 -14)"/>
+      <path d="M  6  -10 q 18 -18 36 0" stroke="#ff7ad9" stroke-width="4" fill="none" stroke-linecap="round" transform="rotate(180 24 -14)"/>
+      <!-- frown -->
+      <path d="M -40 50 Q 0 14 40 50" stroke="#c77eff" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- tear -->
+      <circle cx="-30" cy="20" r="3" fill="#7ecbff"/>
+    </g>
+  </g>
+
+  <!-- Title overlay -->
+  <g font-family="'JetBrains Mono', monospace" font-size="13" fill="#c77eff">
+    <text x="22" y="36" font-weight="500">MASKABLE</text>
+    <text x="22" y="55" font-size="11" fill="#a89cc4">GLOBAL GAME JAM 2026 &middot; THEME: CHAOS</text>
+  </g>
+  <g font-family="'Press Start 2P', monospace" font-size="9" fill="#ff7ad9">
+    <text x="778" y="36" text-anchor="end">48H BUILD</text>
+  </g>
+</svg>
