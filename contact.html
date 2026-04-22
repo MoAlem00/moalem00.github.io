@@ -56,6 +56,92 @@
       const gunImg = new Image();
       gunImg.src = 'sprites/gun.png';
 
+      const ground = new Image();
+      ground.src = 'sprites/ground1.png';
+
+      const shops = [
+      {
+        img: github,
+        x: -50,
+        y: canvas.height / 2 - 400,
+        width: 600,
+        height: 327,
+        label: 'GitHub',
+        url: 'https://github.com/MoAlem00',
+        interactX: 220,  // x position where player triggers F prompt
+        colliderX: 100,
+        colliderY: canvas.height / 2 - 350,
+        colliderW: 300,
+        colliderH: 200
+      },
+      {
+        img: gmail,
+        x: -150,
+        y: canvas.height / 2 + 50,
+        width: 600,
+        height: 327,
+        label: 'Gmail',
+        url: 'mailto:mohammad.alem.dev@gmail.com',
+        interactX: 220,
+        colliderX: 20,
+        colliderY: canvas.height -380,
+        colliderW: 250,
+        colliderH: 200
+      },
+      {
+        img: youtube,
+        x: canvas.width - 450,
+        y: canvas.height / 2 - 400,
+        width: 600,
+        height: 327,
+        label: 'YouTube',
+        url: 'https://www.youtube.com/@MohammadAlem001',
+        interactX: canvas.width - 320,
+        colliderX: canvas.width / 2 + 770,
+        colliderY: canvas.height / 2 - 350,
+        colliderW: 250,
+        colliderH: 200
+      },
+      {
+        img: linkedin,
+        x: canvas.width - 450,
+        y: canvas.height / 2 + 50,
+        width: 600,
+        height: 327,
+        label: 'LinkedIn',
+        url: 'https://www.linkedin.com/in/mohamadalim/',
+        interactX: canvas.width - 320,
+        colliderX: canvas.width / 2 + 750,
+        colliderY: canvas.height / 2 + 100,
+        colliderW: 250,
+        colliderH: 200
+      },
+      {
+        img: itchio,
+        x: canvas.width / 2 - 150,
+        y: -50,
+        width: 400,
+        height: 400,
+        label: 'itch.io',
+        url: 'https://mohammadalem.itch.io/',
+        interactX: canvas.width / 2 - 150,
+        colliderX: canvas.width / 2 - 80,
+        colliderY: canvas.height / 2 - 450,
+        colliderW: 270,
+        colliderH: 200
+      }
+      ];
+      
+      let nearShop = null;
+
+      window.addEventListener('keydown', function(e) {
+      keys[e.key] = true;
+      if (e.key === 'f' || e.key === 'F') {
+        if (nearShop) {
+          window.open(nearShop.url, '_blank');
+        }
+      }
+      });
 
       let mouseX = 0;
       let mouseY = 0;
@@ -84,7 +170,12 @@
      isWalking: false,
     };
 
+    
+
     function updatePlayer(){
+    player.prevX = player.x;
+    player.prevY = player.y;
+
     player.isWalking = false;
     if (keys['w'] || keys['ArrowUp']) {
       player.y -= player.speed;
@@ -102,14 +193,39 @@
       player.x += player.speed;
       player.isWalking = true;
     }
-    player.x = Math.max(0, Math.min(canvas.width - 60, player.x));
-    player.y = Math.max(250, Math.min(canvas.height - 300, player.y));
+    player.x = Math.max(10, Math.min(canvas.width - 30 , player.x));
+    player.y = Math.max(0, Math.min(canvas.height - 50, player.y));
     player.frameTimer++;
     if (player.frameTimer > 16) {
       player.frameTimer = 0;
       player.frame++;
       if (player.frame >= 6) {
         player.frame = 0;
+      }
+    }
+    for (let i = 0; i < shops.length; i++) {
+      let shop = shops[i];
+  
+      // check if player overlaps with shop
+      if (player.x + 40 > shop.colliderX &&
+        player.x < shop.colliderX + shop.colliderW &&
+        player.y + 40> shop.colliderY &&
+        player.y < shop.colliderY + shop.colliderH) {
+    
+        // push player back to previous position
+        player.x = player.prevX;
+        player.y = player.prevY;
+        }
+    }
+    nearShop = null;
+    for (let i = 0; i < shops.length; i++) {
+      let shop = shops[i];
+      const dx = (player.x + 20) - (shop.x + shop.width / 2);
+      const dy = (player.y + 20) - (shop.y + shop.height / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+    
+      if (distance < 200) {
+        nearShop = shop;
       }
     }
     }
@@ -161,16 +277,26 @@
     ctx.restore();
     }
 
+    function drawShops() {
+      for (let i = 0; i < shops.length; i++) {
+        let shop = shops[i];
+        ctx.drawImage(shop.img, shop.x, shop.y, shop.width, shop.height);
+      }
+    }
+
       function contactLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(github, 0, 0, 600, 327);
-        ctx.drawImage(gmail, 1400, 100, 600, 327);
-        ctx.drawImage(youtube, 700, 400, 600, 327);
-        ctx.drawImage(linkedin, 0, 700, 600, 327);
-        ctx.drawImage(itchio, 1500, 300, 600, 600);
+        ctx.drawImage(ground, 0, 0, canvas.width, canvas.height);
+        drawShops();
         drawPlayer();
         updatePlayer();
         requestAnimationFrame(contactLoop);
+        if (nearShop) {
+          ctx.font = '40px Jersey10';
+          ctx.fillStyle = 'white';
+          ctx.textAlign = 'center';
+          ctx.fillText('[F] Visit ' + nearShop.label, player.x + 20, player.y - 20);
+        }
       }
 
       const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
