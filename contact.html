@@ -9,7 +9,7 @@
       }
       body {
         background: #7c7c7c;
-        /* cursor: none; */
+        cursor: none;
         overflow: hidden;
       }
       canvas {
@@ -58,6 +58,21 @@
 
       const ground = new Image();
       ground.src = 'sprites/ground1.png';
+
+      const crosshairImg = new Image();
+      crosshairImg.src = 'sprites/crosshair.png';
+
+      const portalImg = new Image();
+      portalImg.src = 'sprites/portal.png';
+
+      const portal = {
+        x: canvas.width / 2 - 50,
+        y: canvas.height - 128,
+        width: 160,
+        height: 32,
+        frame: 0,
+        frameTimer: 0
+      };
 
       const shops = [
       {
@@ -228,6 +243,37 @@
         nearShop = shop;
       }
     }
+    const pdx = (player.x + 20) - (portal.x + 48);
+    const pdy = (player.y + 20) - (portal.y + 48);
+    const portalDist = Math.sqrt(pdx * pdx + pdy * pdy);
+    if (portalDist < 40) {
+      window.location.href = 'index.html';
+    }
+    }
+
+    function drawPortal() {
+    portal.frameTimer++;
+    if (portal.frameTimer > 8) {
+      portal.frameTimer = 0;
+      portal.frame++;
+      if (portal.frame >= 5) portal.frame = 0;
+    }
+
+    ctx.drawImage(
+      portalImg,
+      portal.frame * 32, // each frame is 32px wide (160 ÷ 5)
+      0,
+      32,
+      32,
+      portal.x,
+      portal.y,
+      32 * 4,
+      32 * 4
+    );
+    ctx.font = '40px Jersey10';
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.fillText('HOME', portal.x + 60, portal.y - 10);
     }
 
     function drawPlayer() {
@@ -284,26 +330,58 @@
       }
     }
 
-      function contactLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(ground, 0, 0, canvas.width, canvas.height);
-        drawShops();
-        drawPlayer();
-        updatePlayer();
-        requestAnimationFrame(contactLoop);
-        if (nearShop) {
-          ctx.font = '40px Jersey10';
-          ctx.fillStyle = 'white';
-          ctx.textAlign = 'center';
-          ctx.fillText('[F] Visit ' + nearShop.label, player.x + 20, player.y - 20);
-        }
+
+    function drawCrosshair() {
+        const size = 32; // adjust to your sprite size
+        ctx.drawImage(
+        crosshairImg,
+        mouseX - size / 2,
+        mouseY - size / 2,
+        size,
+        size
+        );
       }
 
-      const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
-      myFont.load().then(function(loaded) {
-        document.fonts.add(loaded);
-        contactLoop();
+    function contactLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(ground, 0, 0, canvas.width, canvas.height);
+      drawShops();
+      drawPlayer();
+      updatePlayer();
+      drawPortal();
+      drawCrosshair();
+      requestAnimationFrame(contactLoop);
+      if (nearShop) {
+        ctx.font = '40px Jersey10';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText('[F] Visit ' + nearShop.label, player.x + 20, player.y - 20);
+      }
+    }
+
+      let imagesLoaded = 0;
+      const totalImages = 10;
+
+      function onImageLoad() {
+        imagesLoaded++;
+        if (imagesLoaded >= totalImages) {
+          const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
+          myFont.load().then(function(loaded) {
+            document.fonts.add(loaded);
+            contactLoop();
       });
+      }
+      }
+      github.onload = onImageLoad;
+      gmail.onload = onImageLoad;
+      youtube.onload = onImageLoad;
+      linkedin.onload = onImageLoad;
+      itchio.onload = onImageLoad;
+      playerIdleImg.onload = onImageLoad;
+      playerWalkImg.onload = onImageLoad;
+      gunImg.onload = onImageLoad;
+      ground.onload = onImageLoad;
+      portalImg.onload = onImageLoad;
     </script>
   </body>
 </html>
