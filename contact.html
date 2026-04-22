@@ -65,14 +65,26 @@
       const portalImg = new Image();
       portalImg.src = 'sprites/portal.png';
 
-      const portal = {
-        x: canvas.width / 2 - 50,
-        y: canvas.height - 128,
-        width: 160,
-        height: 32,
-        frame: 0,
-        frameTimer: 0
-      };
+      const portals = [
+        {
+          img: portalImg,
+          x: 800,
+          y: canvas.height - 180,
+          label: 'HOME',
+          url: 'index.html',
+          frame: 0,
+          frameTimer: 0
+        },
+        {
+          img: portalImg,
+          x: canvas.width - 900,
+          y: canvas.height - 180,
+          label: 'Projects',
+          url: 'projects.html',
+          frame: 0,
+          frameTimer: 0
+        }
+      ];
 
       const shops = [
       {
@@ -243,37 +255,44 @@
         nearShop = shop;
       }
     }
-    const pdx = (player.x + 20) - (portal.x + 48);
-    const pdy = (player.y + 20) - (portal.y + 48);
-    const portalDist = Math.sqrt(pdx * pdx + pdy * pdy);
-    if (portalDist < 40) {
-      window.location.href = 'index.html';
+    for (let i = 0; i < portals.length; i++) {
+      let portal = portals[i];
+      const pdx = (player.x + 20) - (portal.x + 48);
+      const pdy = (player.y + 20) - (portal.y + 48);
+      const portalDist = Math.sqrt(pdx * pdx + pdy * pdy);
+      if (portalDist < 60) {
+        window.location.href = portal.url;
+      }
     }
     }
 
-    function drawPortal() {
-    portal.frameTimer++;
-    if (portal.frameTimer > 8) {
-      portal.frameTimer = 0;
-      portal.frame++;
-      if (portal.frame >= 5) portal.frame = 0;
-    }
-
-    ctx.drawImage(
-      portalImg,
-      portal.frame * 32, // each frame is 32px wide (160 ÷ 5)
-      0,
-      32,
-      32,
-      portal.x,
-      portal.y,
-      32 * 4,
-      32 * 4
-    );
-    ctx.font = '40px Jersey10';
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    ctx.fillText('HOME', portal.x + 60, portal.y - 10);
+    function drawPortals() {
+       for (let i = 0; i < portals.length; i++) {
+         let portal = portals[i];
+         portal.frameTimer++;
+         if (portal.frameTimer > 8) {
+           portal.frameTimer = 0;
+           portal.frame++;
+           if (portal.frame >= 5) portal.frame = 0;
+         }
+       
+         ctx.drawImage(
+           portalImg,
+           portal.frame * 32,
+           0,
+           32,
+           32,
+           portal.x,
+           portal.y,
+           32 * 6,
+           32 * 6
+         );
+       
+         ctx.font = '40px Jersey10';
+         ctx.fillStyle = 'white';
+         ctx.textAlign = 'center';
+         ctx.fillText(portal.label, portal.x + 90, portal.y - 10);
+       }
     }
 
     function drawPlayer() {
@@ -348,7 +367,7 @@
       drawShops();
       drawPlayer();
       updatePlayer();
-      drawPortal();
+      drawPortals();
       drawCrosshair();
       requestAnimationFrame(contactLoop);
       if (nearShop) {

@@ -2,39 +2,440 @@
 <html>
   <head>
     <title>Projects</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #7c7c7c;
+        /* cursor: none; */
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+      @font-face {
+        font-family: 'Jersey10';
+        src: url('fonts/Jersey10-Regular.ttf');
+      }
+    </style>
   </head>
   <body>
-    <nav>
-  <a href="index.html">Home</a>
-  <a href="projects.html">Projects</a>
-  <a href="contact.html">Contact</a>
-</nav>
-<h1>My Projects</h1>
-<h2>Apocalypse 2D</h2>
-<p>Top down 2D survival game developed in Unity.</p>
-<div id="game-cover">
-  <img src="Assets/Images/ApocalypseBackground.png" alt="Game Preview">
-  <button onclick="startGame()">▶ Play Game</button>
-</div>
-<p>⚠️ For best performance, play in Microsoft Edge or Firefox or play in widowed mode.
-</p>
-<iframe id="game-frame" src="Game/index.html" width="1920" height="1080"></iframe>
-<script>
-    function startGame() {
-      document.getElementById('game-frame').style.display ='block';
-      document.getElementById('game-cover').style.display ='none';
-    }
+    <canvas id="projectsCanvas"></canvas>
+    <script>
+      const canvas = document.getElementById('projectsCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.imageSmoothingEnabled = false;
+
+      const backgroundimg = new Image();
+      backgroundimg.src = 'sprites/room.png';
+
+      const playerIdleImg = new Image();
+      playerIdleImg.src = 'sprites/player-idle.png';
+
+      const playerWalkImg = new Image();
+      playerWalkImg.src = 'sprites/player-walk.png';
+
+      const gunImg = new Image();
+      gunImg.src = 'sprites/gun.png';
+
+      const crosshairImg = new Image();
+      crosshairImg.src = 'sprites/crosshair.png';
+
+      const portalImg = new Image();
+      portalImg.src = 'sprites/portal.png';
+
+      let showInfo = false;
+      let infoMachine = null;
+
+      const portals = [
+        {
+          img: portalImg,
+          x: 800,
+          y: canvas.height - 180,
+          label: 'HOME',
+          url: 'index.html',
+          frame: 0,
+          frameTimer: 0
+        },
+        {
+          img: portalImg,
+          x: canvas.width - 900,
+          y: canvas.height - 180,
+          label: 'CONTACT',
+          url: 'contact.html',
+          frame: 0,
+          frameTimer: 0
+        }
+      ];
+
+      const machines = [
+        {
+          label: 'Apocalypse 2D',
+          url: 'Game/index.html',
+          info: 'Top-down 2D survival game',
+          x: 50,       // position of the machine in the image
+          y: 450,
+          width: 200,
+          height: 400
+        },
+        {
+          label: 'Maskable',
+          url: 'MaskableGame/index.html',
+          info: '2D platformer game where you mask between worlds',
+          x: 360,
+          y: 230,
+          width: 200,
+          height: 300
+        },
+        {
+          label: 'Coming Soon',
+          url: null,    // no URL means not playable yet
+          info: 'Working on my next game!',
+          x: 560,
+          y: 100,
+          width: 200,
+          height: 240
+        },
+        {
+          label: 'Coming Soon',
+          url: null,    // no URL means not playable yet
+          info: 'Working on my next game!',
+          x: 1000,
+          y: 70,
+          width: 150,
+          height: 200
+        },
+        {
+          label: 'Coming Soon',
+          url: null,    // no URL means not playable yet
+          info: 'Working on my next game!',
+          x: 1370,
+          y: 180,
+          width: 200,
+          height: 230
+        },
+        {
+          label: 'Coming Soon',
+          url: null,    // no URL means not playable yet
+          info: 'Working on my next game!',
+          x: 1550,
+          y: 330,
+          width: 230,
+          height: 290
+        },
+        {
+          label: 'Coming Soon',
+          url: null,    // no URL means not playable yet
+          info: 'Working on my next game!',
+          x: 1800,
+          y: 500,
+          width: 230,
+          height: 280
+        },
+  
+      ];
+      let mouseX = 0;
+      let mouseY = 0;
+      window.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+
+      let keys = {};
+
+      window.addEventListener('keydown', function(e) {
+      keys[e.key] = true;
+      });
+
+      window.addEventListener('keyup', function(e) {
+      keys[e.key] = false;
+      });
+
+      let player = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      speed: 1.5,
+      frame: 0,
+      frameTimer: 0,
+      isWalking: false,
+      };
+
+      window.addEventListener('keydown', function(e) {
+        keys[e.key] = true;
+
+        if (nearMachine) {
+          if (e.key === 'f' || e.key === 'F') {
+            if (nearMachine.url) {
+              showGame(nearMachine.url);
+            }
+          }
+          if (e.key === 'i' || e.key === 'I') {
+            showInfo = true;
+            infoMachine = nearMachine;
+          }
+        }
+
+        if (e.key === 'Escape') {
+          showInfo = false;
+        }
+      });
+
+      function drawPortals() {
+         for (let i = 0; i < portals.length; i++) {
+           let portal = portals[i];
+
+           portal.frameTimer++;
+           if (portal.frameTimer > 8) {
+             portal.frameTimer = 0;
+             portal.frame++;
+             if (portal.frame >= 5) portal.frame = 0;
+           }
+         
+           ctx.drawImage(
+             portalImg,
+             portal.frame * 32,
+             0,
+             32,
+             32,
+             portal.x,
+             portal.y,
+             32 * 6,
+             32 * 6
+           );
+         
+           ctx.font = '40px Jersey10';
+           ctx.fillStyle = 'white';
+           ctx.textAlign = 'center';
+           ctx.fillText(portal.label, portal.x + 90, portal.y - 10);
+         }
+      }
+
+      function updatePlayer(){
+      player.prevX = player.x;
+      player.prevY = player.y;
+
+      nearMachine = null;
+      player.isWalking = false;
+      if (keys['w'] || keys['ArrowUp']) {
+        player.y -= player.speed;
+        player.isWalking = true;
+      }
+      if (keys['s'] || keys['ArrowDown']) {
+        player.y += player.speed;
+        player.isWalking = true;
+      }
+      if (keys['a'] || keys['ArrowLeft']) {
+        player.x -= player.speed;
+        player.isWalking = true;
+      }
+      if (keys['d'] || keys['ArrowRight']) {
+        player.x += player.speed;
+        player.isWalking = true;
+      }
+      player.x = Math.max(10, Math.min(canvas.width - 30 , player.x));
+      player.y = Math.max(130, Math.min(canvas.height - 50, player.y));
+      player.frameTimer++;
+      if (player.frameTimer > 16) {
+        player.frameTimer = 0;
+        player.frame++;
+        if (player.frame >= 6) {
+          player.frame = 0;
+        }
+      }
+      for (let i = 0; i < machines.length; i++) {
+        let m = machines[i];
+        const dx = (player.x + 20) - (m.x + m.width / 2);
+        const dy = (player.y + 20) - (m.y + m.height / 2);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+      
+        if (distance < 150) {
+          nearMachine = m;
+        }
+      }
+      for (let i = 0; i < portals.length; i++) {
+        let portal = portals[i];
+        const pdx = (player.x + 20) - (portal.x + 48);
+        const pdy = (player.y + 20) - (portal.y + 48);
+        const portalDist = Math.sqrt(pdx * pdx + pdy * pdy);
+
+        if (portalDist < 60) {
+          window.location.href = portal.url;
+      }
+      }
+      }
+
+      function drawPlayer() {
+      const img = player.isWalking ? playerWalkImg : playerIdleImg;
+      const frameWidth = player.isWalking ? 10 : 10;
+      const frameHeight = player.isWalking ? 17 : 16;
+      ctx.drawImage(
+        img,
+        player.frame * frameWidth,
+        0,
+        frameWidth,
+        frameHeight,
+        player.x,
+        player.y,
+        frameWidth * 6,
+        frameHeight * 6
+      );
+      // Draw gun on top
+      // calculate angle from player center to mouse
+      const centerX = player.x + 15; // horizontal center of player
+      const centerY = player.y + 35; // vertical center of player
+      const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+      const facingLeft = mouseX < centerX;
+
+      // draw rotated gun
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle);
+      if(facingLeft) {
+        ctx.scale(1, -1); // flip vertically when facing left
+        ctx.drawImage(
+          gunImg,
+          -9,          // draw from rotation origin
+          -9,         // offset up slightly so gun is centered
+          16 * 4,
+          10 * 4
+        );
+      }else{ //face right
+        ctx.drawImage(
+          gunImg,
+          -5,          // draw from rotation origin
+          -5,         // offset up slightly so gun is centered
+          16 * 4,
+          10 * 4
+        );
+      }
+      ctx.restore();
+      }
+
+      function drawInfoPopup() {
+        if (!showInfo || !infoMachine) return;
+
+        // dark semi-transparent overlay
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // popup box
+        const boxW = 600;
+        const boxH = 400;
+        const boxX = canvas.width / 2 - boxW / 2;
+        const boxY = canvas.height / 2 - boxH / 2;
+
+        ctx.fillStyle = '#2a1f1a';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.strokeStyle = '#c77e4a';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+        // title
+        ctx.font = '40px Jersey10';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText(infoMachine.label, canvas.width / 2, boxY + 60);
+
+        // description
+        ctx.font = '24px Jersey10';
+        ctx.fillStyle = '#e0c4a0';
+        ctx.fillText(infoMachine.info, canvas.width / 2, boxY + 120);
+
+        // close hint
+        ctx.font = '20px Jersey10';
+        ctx.fillStyle = '#999';
+        ctx.fillText('Press ESC to close', canvas.width / 2, boxY + boxH - 40);
+      }
+
+      function drawCrosshair() {
+        const size = 32; // adjust to your sprite size
+        ctx.drawImage(
+        crosshairImg,
+        mouseX - size / 2,
+        mouseY - size / 2,
+        size,
+        size
+        );
+      }
+
+      function drawMachines() {
+        for (let i = 0; i < machines.length; i++) {
+          let m = machines[i];
+        }
+      } 
+
+      let gameOverlayVisible = false;
+
+      function showGame(url) {
+        gameOverlayVisible = true;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'gameOverlay';
+        overlay.style = `
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: grey;
+          z-index: 1000;
+        `;
+
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.style = 'width: 100%; height: 100%; border: none;';
+
+        const backBtn = document.createElement('button');
+        backBtn.textContent = '← Back to Lobby';
+        backBtn.style = `
+          position: fixed;
+          top: 20px; left: 20px;
+          padding: 10px 20px;
+          background: black;
+          color: white;
+          border: none;
+          font-family: Jersey10;
+          font-size: 20px;
+          cursor: pointer;
+          z-index: 1001;
+        `;
+        backBtn.onclick = function() {
+          document.body.removeChild(overlay);
+          gameOverlayVisible = false;
+        };
+
+        overlay.appendChild(iframe);
+        overlay.appendChild(backBtn);
+        document.body.appendChild(overlay);
+      }
+
+
+      function projectsLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(backgroundimg, 0, 0, canvas.width, canvas.height);
+      drawMachines();
+      updatePlayer();
+      drawPlayer();
+      drawPortals();
+      drawCrosshair();
+      drawInfoPopup();
+      requestAnimationFrame(projectsLoop);
+      if (nearMachine) {
+        ctx.font = '30px Jersey10';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText('[F] Play  [I] Info', player.x + 20, player.y - 20);
+      }     
+      }
+
+      projectsLoop();
+
+
     </script>
   </body>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-<div class="orb orb4"></div>
-<div class="orb orb5"></div>
-<div class="orb orb6"></div>
-<div class="orb orb7"></div>
-<div class="orb orb8"></div>
-<div class="orb orb9"></div>
-<div class="orb orb10"></div>
 </html>
