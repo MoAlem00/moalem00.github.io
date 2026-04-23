@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mohammad Alem</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #292934;
+        cursor: none;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+      @font-face {
+        font-family: 'Jersey10';
+        src: url('fonts/Jersey10-Regular.ttf');
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+  // 1. Canvas setup
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.imageSmoothingEnabled = false;
+
+  // 2. Load images
+  const backgroundImg = new Image();
+  backgroundImg.src = 'sprites/background3.png';
+
+  const borderImg = new Image();
+  borderImg.src = 'sprites/border.png';
+
+  const crosshairImg = new Image();
+  crosshairImg.src = 'sprites/crosshair.png';
+
+  const smallWalkImg = new Image();
+  smallWalkImg.src = 'sprites/small-zombie-walk.png';
+
+  const smallDeadImg = new Image();
+  smallDeadImg.src = 'sprites/small-zombie-dead.png';
+
+  const bigWalkImg = new Image();
+  bigWalkImg.src = 'sprites/big-zombie-walk.png';
+
+  const bigDeadImg = new Image();
+  bigDeadImg.src = 'sprites/big-zombie-dead.png';
+
+  const bulletImg = new Image();
+  bulletImg.src = 'sprites/bullet.png';
+
+  const bulletEmptyImg = new Image();
+  bulletEmptyImg.src = 'sprites/bullet-empty.png';
+
+  const playerIdleImg = new Image();
+  playerIdleImg.src = 'sprites/player-idle.png';
+
+  const playerWalkImg = new Image();
+  playerWalkImg.src = 'sprites/player-walk.png';
+
+  const gunImg = new Image();
+  gunImg.src = 'sprites/gun.png';
+
+  const gunBulletImg = new Image();
+  gunBulletImg.src = 'sprites/gun-bullet.png';
+
+  const muzzleFlashImg = new Image();
+  muzzleFlashImg.src = 'sprites/muzzle-flash.png';
+
+  let killCount = parseInt(localStorage.getItem('killCount')) || 0;
+
+  let ammo = 6;
+  let maxAmmo = 6;
+  let reloading = false;
+
+  let muzzleFlash = 0;
+  let muzzleFlashFrame = 0;
+
+  let bullets = [];
+
+  let keys = {};
+
+  window.addEventListener('keydown', function(e) {
+    keys[e.key] = true;
+  });
+
+  window.addEventListener('keyup', function(e) {
+    keys[e.key] = false;
+  });
+
+  let player = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  speed: 1.5,
+  frame: 0,
+  frameTimer: 0,
+  isWalking: false,
+  health:100,
+  maxHealth:100
+  };
+
+  let zombies = [
+  {
+    x: canvas.width,
+    y: canvas.height / 2,
+    speed: 0.5,
+    frame: 0,
+    frameTimer: 0,
+    isDead: false,
+    redirecting: false,
+    label: 'Projects',
+    url: 'projects.html',
+    type: 'small'
+  },
+  {
+    x: canvas.width + 100,
+    y: canvas.height / 2 + 100,
+    speed: 0.7,
+    frame: 0,
+    frameTimer: 0,
+    isDead: false,
+    redirecting: false,
+    label: 'Contact',
+    url: 'contact.html',
+    type: 'small'
+  },
+  {
+    x: canvas.width - 100,
+    y: canvas.height / 2 -200,
+    speed: 0.5,
+    frame: 0,
+    frameTimer: 0,
+    isDead: false,
+    redirecting: false,
+    label: 'Home',
+    url: 'game.html',
+    type: 'big'
+  }
+];
+
+  // 3. Track mouse
+  let mouseX = 0;
+  let mouseY = 0;
+  window.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function updatePlayer(){
+    player.isWalking = false;
+    if (keys['w'] || keys['ArrowUp']) {
+      player.y -= player.speed;
+      player.isWalking = true;
+    }
+    if (keys['s'] || keys['ArrowDown']) {
+      player.y += player.speed;
+      player.isWalking = true;
+    }
+    if (keys['a'] || keys['ArrowLeft']) {
+      player.x -= player.speed;
+      player.isWalking = true;
+    }
+    if (keys['d'] || keys['ArrowRight']) {
+      player.x += player.speed;
+      player.isWalking = true;
+    }
+    player.x = Math.max(0, Math.min(canvas.width - 60, player.x));
+    player.y = Math.max(250, Math.min(canvas.height - 300, player.y));
+    player.frameTimer++;
+    if (player.frameTimer > 16) {
+      player.frameTimer = 0;
+      player.frame++;
+      if (player.frame >= 6) {
+        player.frame = 0;
+      }
+    }
+  }
+
+  function updateZombie(zombie) {
+  zombie.x -= zombie.speed;
+  zombie.frameTimer++;
+  if (zombie.frameTimer > 12) {
+    zombie.frameTimer = 0;
+    zombie.frame++;
+    if (!zombie.isDead && zombie.x < -100) {
+      zombie.x = canvas.width;
+      zombie.frame = 0;
+    }
+    if (!zombie.isDead) {
+      // walking
+      const dx = zombie.x - player.x;
+      const dy = zombie.y - player.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if(distance < 40){
+        player.health -= 0.5; // damage player when close
+        if(player.health <= 0) {
+          player.health = 0;
+          // Optionally, you could add a "game over" state here
+        }
+      }
+      zombie.x -= zombie.speed;
+      const maxFrames = zombie.isDead ? 
+        (zombie.type === 'big' ? 8 : 7) :
+        (zombie.type === 'big' ? 8 : 6);
+
+      if (zombie.frame >= maxFrames) {
+        zombie.frame = 0;
+      }
+    } else {
+      // dying — don't loop, stop at last frame
+      zombie.speed = 0; // stop moving when dead
+      if (zombie.frame >= 7) {
+      zombie.frame = 6;
+      if (!zombie.redirecting) {
+        zombie.redirecting = true;
+        setTimeout(function() {
+        window.location.href = zombie.url;
+        }, 300); // wait 300ms then redirect
+      }
+      }
+      }
+    }
+  }
+
+  function updateBullets(){
+    for (let i = 0; i < bullets.length; i++) {
+      let bullet = bullets[i];
+      if (bullet.active) {
+        bullet.x += bullet.speedX;
+        bullet.y += bullet.speedY;
+        for (let j = 0; j < zombies.length; j++) {
+          let zombie = zombies[j];
+          if (!zombie.isDead) {
+            const frameWidth = zombie.type === 'big' ? 16 : 10;
+            const frameHeight = zombie.type === 'big' ? 24 : 15;
+
+            if (bullet.x > zombie.x &&
+              bullet.x < zombie.x + frameWidth * 4 &&
+              bullet.y > zombie.y &&
+              bullet.y < zombie.y + frameHeight * 4) {
+            // bullet hit zombie!
+            bullet.active = false;
+            zombie.isDead = true;
+            zombie.frame = 0;
+            zombie.speed = 0;
+            killCount++;
+            localStorage.setItem('killCount', killCount);
+            }
+          }
+        }
+        // Deactivate if off screen
+        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+          bullet.active = false;
+        }
+      }
+    }
+    bullets = bullets.filter(b => b.active);
+  }
+
+  function drawBullets(){
+    for (let i = 0; i < bullets.length; i++) {
+    let bullet = bullets[i];
+    ctx.beginPath();
+    ctx.arc(bullet.x, bullet.y, 1.8, 0, Math.PI * 2);
+    ctx.fillStyle = "black";
+    ctx.fill();
+  }
+  }
+
+  function drawPlayer() {
+    const img = player.isWalking ? playerWalkImg : playerIdleImg;
+    const frameWidth = player.isWalking ? 10 : 10;
+    const frameHeight = player.isWalking ? 17 : 16;
+    ctx.drawImage(
+      img,
+      player.frame * frameWidth,
+      0,
+      frameWidth,
+      frameHeight,
+      player.x,
+      player.y,
+      frameWidth * 4,
+      frameHeight * 4
+    );
+    // Draw gun on top
+    // calculate angle from player center to mouse
+    const centerX = player.x + 15; // horizontal center of player
+    const centerY = player.y + 35; // vertical center of player
+    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+    const facingLeft = mouseX < centerX;
+
+    // draw rotated gun
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(angle);
+    if(facingLeft) {
+      ctx.scale(1, -1); // flip vertically when facing left
+      ctx.drawImage(
+        gunImg,
+        -9,          // draw from rotation origin
+        -9,         // offset up slightly so gun is centered
+        16 * 3,
+        10 * 3
+      );
+    }else{ //face right
+      ctx.drawImage(
+        gunImg,
+        -8,          // draw from rotation origin
+        -8,         // offset up slightly so gun is centered
+        16 * 3,
+        10 * 3
+      );
+    }
+    ctx.restore();
+  }
+
+  function drawHUD(){
+
+    ctx.drawImage(borderImg, 0,0, 124 * 3.5, 62 * 3.5);
+    const barWidth = 280;
+    const barHeight = 20;
+    const healthPercent = player.health / player.maxHealth;
+    // background
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(40, 45, barWidth, barHeight);
+    // foreground
+    ctx.fillStyle = '#A80202';
+    ctx.fillRect(40, 45, barWidth * healthPercent, barHeight);
+
+    ctx.textAlign = 'left';
+    ctx.font = '50px Jersey10';
+    ctx.fillStyle = 'white';
+    ctx.fillText('KILLS: ' + killCount, 40, 180);
+    if (reloading) {
+    ctx.fillStyle = 'red';
+    ctx.fillText('RELOADING...', 160, 130);}
+    for (let i = 0; i < maxAmmo; i++) {
+    const img = i < ammo ? bulletImg : bulletEmptyImg;
+    ctx.drawImage(
+      img,
+      40 + i * 20,  // space them 20px apart
+      80,           // y position below kill counter
+      7 * 2,        // width scaled up
+      25 * 2        // height scaled up
+    );
+  }
+  }
+  // 4. Draw functions
+  function drawCrosshair() {
+    const size = 32; // adjust to your sprite size
+    ctx.drawImage(
+    crosshairImg,
+    mouseX - size / 2,
+    mouseY - size / 2,
+    size,
+    size
+  );
+  }
+
+  function drawLabel(zombie) {
+    ctx.fillStyle = 'white';
+    ctx.font = '35px Jersey10';
+    ctx.textAlign = 'center';
+    ctx.fillText(zombie.label, zombie.x + (11 * 4) / 2, zombie.y - 5);
+  }
+
+  function drawZombie(zombie) {
+
+  if(zombie.type === 'big') {
+    const img = zombie.isDead ? bigDeadImg : bigWalkImg;
+    const frameWidth = zombie.isDead ? 29 : 16;
+    const frameHeight = zombie.isDead ? 24 : 24;
+    ctx.drawImage(
+      img,
+      zombie.frame * frameWidth,
+      0,
+      frameWidth,
+      frameHeight,
+      zombie.x,
+      zombie.y,
+      frameWidth * 4,
+      frameHeight * 4
+    );
+  }
+  else if(zombie.type === 'small') { 
+  const img = zombie.isDead ? smallDeadImg : smallWalkImg;
+  const frameWidth = zombie.isDead ? 16 : 11;
+  const frameHeight = zombie.isDead ? 16 : 15;
+  ctx.drawImage(
+    img,
+    zombie.frame * frameWidth,
+    0,
+    frameWidth,
+    frameHeight,
+    zombie.x,
+    zombie.y,
+    frameWidth * 4,
+    frameHeight * 4
+  );
+}
+}
+
+function drawMuzzleFlash() {
+  if (muzzleFlash <= 0) return;
+
+  const centerX = player.x + 15;
+  const centerY = player.y + 35;
+  const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.drawImage(
+    muzzleFlashImg,
+    muzzleFlashFrame * 10, // 30px ÷ 3 frames = 10px each
+    0,
+    10,
+    7,
+    40,   // offset forward from gun tip
+    -3,   // center vertically
+    10,
+    7
+  );
+  ctx.restore();
+
+  muzzleFlash--;
+  if (muzzleFlash % 3 === 0) muzzleFlashFrame++;
+}
+
+
+window.addEventListener('click', function() {
+
+  if (ammo <= 0 || reloading) return; // can't shoot if no ammo
+  const centerX = player.x + 15;
+  const centerY = player.y + 35;
+  const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+  const bulletSpeed = 5;
+  bullets.push({
+    x: centerX,
+    y: centerY,
+    speedX: Math.cos(angle) * bulletSpeed,
+    speedY: Math.sin(angle) * bulletSpeed,
+    active: true
+  });
+  muzzleFlash = 9; // 3 frames × 3 ticks each
+  muzzleFlashFrame = 0;
+  ammo--; // use one bullet
+
+  if (ammo <= 0) {
+    reloading = true;
+    setTimeout(function() {
+      ammo = maxAmmo;
+      reloading = false;
+    }, 2000); // 2 second reload
+  }
+});
+
+
+  // 5. Game loop
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < zombies.length; i++) {
+    let zombie = zombies[i];
+    updateZombie(zombie);
+    drawZombie(zombie);
+    drawLabel(zombie);
+  }
+  updatePlayer();
+  updateBullets();
+  drawBullets();
+  drawPlayer();
+  drawHUD();
+  drawMuzzleFlash();
+  drawCrosshair();
+  requestAnimationFrame(gameLoop);
+}
+const myFont = new FontFace('Jersey10', 'url(fonts/Jersey10-Regular.ttf)');
+myFont.load().then(function(loaded) {
+  document.fonts.add(loaded);
+  // 6. Start
+  gameLoop();
+});
+</script>
+  </body>
+</html>
