@@ -265,6 +265,39 @@
             </div>
           </div>
         </article>
+
+        <article class="card reveal">
+          <a href="BrickBoom2D/index.html" class="card__media" aria-label="Play BrickBoom 2D">
+            <img src="cv/images/brickboomBackground.png" alt="BrickBoom 2D — classic brick breaker arcade game screenshot" />
+            <span class="card__play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+            </span>
+          </a>
+          <div class="card__body">
+            <div class="card__meta">
+              <span class="card__type">Arcade</span>
+              <span class="card__dot">&bull;</span>
+              <span class="card__type">2D</span>
+            </div>
+            <h3 class="card__title">BrickBoom 2D</h3>
+            <p class="card__desc">
+              Classic brick breaker arcade game.
+            </p>
+            <ul class="tags" aria-label="Technologies used">
+              <li>Unity</li>
+              <li>C#</li>
+              <li>Arcade</li>
+              <li>2D</li>
+            </ul>
+            <div class="card__actions">
+              <a href="BrickBoom2D/index.html" class="btn btn--primary btn--sm">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+                <span>Play</span>
+              </a>
+              <a href="projects.html#brickboom" class="btn btn--link btn--sm">Details &rarr;</a>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -405,7 +438,7 @@
 
       // Intercept clicks on Play targets inside the projects grid:
       // both the card image link and the explicit "Play" button.
-      const playSelector = 'a[href$="Game/index.html"], a[href$="MaskableGame/index.html"]';
+      const playSelector = 'a[href$="Game/index.html"], a[href$="MaskableGame/index.html"], a[href$="BrickBoom2D/index.html"]';
       document.querySelectorAll('.projects ' + playSelector).forEach(link => {
         link.addEventListener('click', e => {
           // Honor open-in-new-tab gestures

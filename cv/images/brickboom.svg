@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bbBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d1633"/>
+      <stop offset="100%" stop-color="#0a0612"/>
+    </linearGradient>
+    <linearGradient id="bbAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c77eff"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ff7ad9"/>
+    </linearGradient>
+    <radialGradient id="bbBallGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#c77eff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#c77eff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bbBg)"/>
+
+  <!-- Field border -->
+  <rect x="40" y="40" width="720" height="420" fill="none" stroke="#2a2240" stroke-width="2" rx="8"/>
+
+  <!-- Bricks (rows of color) -->
+  <g>
+    <!-- row 1 -->
+    <rect x="80"  y="90"  width="90" height="26" rx="4" fill="#ff5e7a"/>
+    <rect x="180" y="90"  width="90" height="26" rx="4" fill="#ff5e7a"/>
+    <rect x="280" y="90"  width="90" height="26" rx="4" fill="#ff5e7a"/>
+    <rect x="380" y="90"  width="90" height="26" rx="4" fill="#ff5e7a"/>
+    <rect x="480" y="90"  width="90" height="26" rx="4" fill="#ff5e7a"/>
+    <rect x="580" y="90"  width="90" height="26" rx="4" fill="#ff5e7a"/>
+    <!-- row 2 -->
+    <rect x="80"  y="124" width="90" height="26" rx="4" fill="#ffb648"/>
+    <rect x="180" y="124" width="90" height="26" rx="4" fill="#ffb648"/>
+    <rect x="280" y="124" width="90" height="26" rx="4" fill="#ffb648"/>
+    <rect x="380" y="124" width="90" height="26" rx="4" fill="#ffb648"/>
+    <rect x="480" y="124" width="90" height="26" rx="4" fill="#ffb648"/>
+    <rect x="580" y="124" width="90" height="26" rx="4" fill="#ffb648"/>
+    <!-- row 3 -->
+    <rect x="80"  y="158" width="90" height="26" rx="4" fill="#7be36b"/>
+    <rect x="180" y="158" width="90" height="26" rx="4" fill="#7be36b"/>
+    <rect x="280" y="158" width="90" height="26" rx="4" fill="#7be36b"/>
+    <rect x="480" y="158" width="90" height="26" rx="4" fill="#7be36b"/>
+    <rect x="580" y="158" width="90" height="26" rx="4" fill="#7be36b"/>
+    <!-- row 4 (gap, partially broken) -->
+    <rect x="180" y="192" width="90" height="26" rx="4" fill="#5cc4ff"/>
+    <rect x="280" y="192" width="90" height="26" rx="4" fill="#5cc4ff"/>
+    <rect x="480" y="192" width="90" height="26" rx="4" fill="#5cc4ff"/>
+    <!-- row 5 -->
+    <rect x="280" y="226" width="90" height="26" rx="4" fill="#c77eff"/>
+    <rect x="380" y="226" width="90" height="26" rx="4" fill="#c77eff"/>
+  </g>
+
+  <!-- Particle bits (broken brick fragments) -->
+  <g fill="#7be36b" opacity="0.85">
+    <rect x="402" y="170" width="6" height="6"/>
+    <rect x="430" y="178" width="4" height="4"/>
+    <rect x="416" y="190" width="5" height="5"/>
+  </g>
+
+  <!-- Ball -->
+  <g>
+    <circle cx="430" cy="320" r="40" fill="url(#bbBallGlow)"/>
+    <circle cx="430" cy="320" r="12" fill="#fff"/>
+  </g>
+
+  <!-- Trajectory -->
+  <line x1="420" y1="332" x2="380" y2="195" stroke="#c77eff" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.7"/>
+
+  <!-- Paddle -->
+  <g>
+    <rect x="320" y="400" width="160" height="16" rx="8" fill="url(#bbAccent)"/>
+    <rect x="320" y="400" width="160" height="4"  rx="2" fill="rgba(255,255,255,0.4)"/>
+  </g>
+
+  <!-- HUD -->
+  <g font-family="'JetBrains Mono', monospace" font-size="14" fill="#c77eff">
+    <text x="60"  y="68" font-weight="500">BRICKBOOM 2D</text>
+    <text x="60"  y="86" font-size="11" fill="#a89cc4">LEVEL 03 &middot; LIVES 03</text>
+  </g>
+  <g font-family="'Press Start 2P', monospace" font-size="9" fill="#ff7ad9">
+    <text x="740" y="68" text-anchor="end">SCORE 4,820</text>
+  </g>
+</svg>
